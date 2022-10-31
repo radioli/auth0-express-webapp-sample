@@ -14,5 +14,9 @@ router.get('/profile', requiresAuth(), function (req, res, next) {
     title: 'Profile page'
   });
 });
+// requiresAuth checks authentication.
+router.get('/admin', requiresAuth(), (req, res) =>
+  res.send(`Hello ${req.oidc.user.sub}, this is the admin section.`)
+);
 
 module.exports = router;

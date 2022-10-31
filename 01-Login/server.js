@@ -4,7 +4,7 @@ const http = require('http');
 const logger = require('morgan');
 const path = require('path');
 const router = require('./routes/index');
-const { auth } = require('express-openid-connect');
+const { auth, requiresAuth } = require('express-openid-connect');
 
 dotenv.load();
 
@@ -32,6 +32,8 @@ app.use(auth(config));
 // Middleware to make the `user` object available for all views
 app.use(function (req, res, next) {
   res.locals.user = req.oidc.user;
+  console.log(req.oidc.user)
+  console.log(req.user)
   next();
 });
 
@@ -52,7 +54,10 @@ app.use(function (err, req, res, next) {
     error: process.env.NODE_ENV !== 'production' ? err : {}
   });
 });
-
+// requiresAuth checks authentication.
+app.get('/admin', requiresAuth(), (req, res) =>
+  res.send(`Hello ${req.oidc.user.sub}, this is the admin section.`)
+);
 http.createServer(app)
   .listen(port, () => {
     console.log(`Listening on ${config.baseURL}`);
